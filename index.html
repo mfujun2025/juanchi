@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>3D卷尺面板生成器｜完整版(Logo+字号+颜色+批量)</title>
+<style>
+*{
+  box-sizing:border-box;
+  font-family:system-ui, -apple-system, "Microsoft YaHei", sans-serif;
+}
+body{
+  margin:0;
+  padding:24px;
+  background:
+    radial-gradient(circle at 10% 10%, rgba(255,255,255,.8), transparent 20%),
+    linear-gradient(135deg, #eef2f5 0%, #dfe6ed 100%);
+  min-height:100vh;
+}
+.app{
+  max-width:1350px;
+  margin:0 auto;
+  background:#fff;
+  border-radius:18px;
+  box-shadow:0 10px 30px rgba(0,0,0,.08);
+  padding:30px;
+}
+h1{
+  text-align:center;
+  margin-bottom:30px;
+  font-size:22px;
+  color:#222;
+}
+.grid{
+  display:grid;
+  grid-template-columns:460px 1fr;
+  gap:30px;
+  align-items:start;
+}
+.card{
+  background:#f7f9fc;
+  border-radius:14px;
+  padding:20px;
+  margin-bottom:16px;
+}
+.card h3{
+  margin-top:0;
+  margin-bottom:16px;
+  font-size:18px;
+  color:#333;
+}
+.form-row{
+  margin-bottom:14px;
+}
+.form-row label{
+  display:block;
+  margin-bottom:6px;
+  color:#555;
+  font-size:14px;
+}
+.form-row .row-flex{
+  display:flex;
+  gap:8px;
+}
+.form-row .row-flex input:first-child{
+  flex:1;
+}
+.form-row .row-flex input:last-child{
+  width:70px;
+}
+.form-row input, .form-row select{
+  width:100%;
+  padding:10px 12px;
+  border:1px solid #ddd;
+  border-radius:8px;
+  font-size:15px;
+  background:#fff;
+}
+.btn{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:8px;
+  font-size:16px;
+  cursor:pointer;
+  margin-top:10px;
+  transition:.2s;
+}
+.btn-primary{
+  background:#222;
+  color:#fff;
+}
+.btn-primary:hover{
+  background:#000;
+}
+.btn-blue{
+  background:#1677ff;
+  color:#fff;
+}
+.btn-blue:hover{
+  background:#0f5fcc;
+}
+.btn-green{
+  background:#27ae60;
+  color:#fff;
+}
+.btn-green:hover{
+  background:#1f8b4c;
+}
+.preview-wrap{
+  background:linear-gradient(180deg, #e0e5ec 0%, #cfd6dd 100%);
+  border-radius:14px;
+  padding:30px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:560px;
+  position:relative;
+  overflow:hidden;
+}
+.preview-title{
+  position:absolute;
+  top:10px;
+  left:15px;
+  font-size:13px;
+  color:#666;
+}
+canvas{
+  width:440px;
+  height:480px;
+  border-radius:12px;
+  background:transparent;
+}
+.tip{
+  margin-top:12px;
+  font-size:13px;
+  color:#666;
+  line-height:1.5;
+}
+.logo-preview{
+  margin-top:8px;
+  width:100px;height:60px;
+  border:1px dashed #aaa;
+  border-radius:6px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;color:#777;
+  overflow:hidden;
+}
+.logo-preview img{max-width:95%;max-height:95%;object-fit:contain;}
+textarea{
+  width:100%;
+  min-height:100px;
+  border:1px solid #ddd;
+  border-radius:8px;
+  padding:10px;
+  font-size:14px;
+}
+@media(max-width:960px){
+  .grid{grid-template-columns:1fr;}
+  canvas{width:100%;max-width:440px;height:auto;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <h1>📏 3D卷尺面板生成器｜完整版</h1>
+  <div class="grid">
+    <div class="left-col">
+      <div class="card">
+        <h3>📝 文字设置（右侧数字=字号）</h3>
+        <div class="form-row">
+          <label>主品牌大字</label>
+          <div class="row-flex">
+            <input id="txtMain" value="全友"/>
+            <input id="sizeMain" type="number" value="148"/>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>英文/拼音副标题</label>
+          <div class="row-flex">
+            <input id="txtEn" value="Quanu"/>
+            <input id="sizeEn" type="number" value="52"/>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>业务描述</label>
+          <div class="row-flex">
+            <input id="txtBiz" value="全屋定制/家具/沙发/橱柜/卫浴"/>
+            <input id="sizeBiz" type="number" value="26"/>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>联系电话</label>
+          <div class="row-flex">
+            <input id="txtTel" value="电话: 1876688XXXX"/>
+            <input id="sizeTel" type="number" value="26"/>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>底部规格</label>
+          <div class="row-flex">
+            <input id="txtSpec" value="10m×25mm"/>
+            <input id="sizeSpec" type="number" value="28"/>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>文字颜色（支持#色值，默认#f0ece0米白）</label>
+          <input id="txtColor" value="#f0ece0"/>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>🖼️ Logo设置</h3>
+        <div class="form-row">
+          <input type="file" id="logoFile" accept="image/*">
+          <div class="logo-preview" id="logoPreviewBox">无Logo</div>
+        </div>
+        <div class="form-row">
+          <label>Logo缩放比例</label>
+          <input id="logoScale" type="number" value="0.45" step="0.05"/>
+        </div>
+        <div class="form-row">
+          <label>Logo上下偏移Y（正数下移，负数上移）</label>
+          <input id="logoYOffset" type="number" value="-120"/>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>🎨 卷尺外壳颜色</h3>
+        <div class="form-row">
+          <select id="shellColorMode">
+            <option value="darkGray">原版深灰(默认)</option>
+            <option value="black">纯黑</option>
+            <option value="blue">深蓝</option>
+            <option value="orange">橙红</option>
+            <option value="custom">自定义渐变</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>📦 批量生成（一行一组，逗号分隔）</h3>
+        <label>格式示例：品牌,英文,业务,电话,规格</label>
+<textarea id="batchText">全友,Quanu,全屋定制/家具/沙发/橱柜/卫浴,电话:1876688XXXX,10m×25mm
+示例建材,JianCai,瓷砖/防水/门窗,电话:13800000000,7.5m×25mm</textarea>
+        <button class="btn btn-green" onclick="batchExport()">批量导出全部图片</button>
+      </div>
+
+      <button class="btn btn-primary" onclick="draw()">实时刷新预览</button>
+      <button class="btn btn-blue" onclick="downloadPNG()">导出单张PNG图片</button>
+
+      <p class="tip">💡 操作提示：<br>1. 每行文字独立字号、Logo可上下微调<br>2. 文字颜色支持十六进制色值<br>3. 外壳内置4套配色+自定义渐变<br>4. 批量框按【品牌,英文,业务,电话,规格】换行填写，一键打包导出</p>
+    </div>
+
+    <div class="preview-wrap">
+      <div class="preview-title">预览效果</div>
+      <canvas id="canvas" width="880" height="960"></canvas>
+    </div>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+let logoImg = null;
+
+// 读取输入
+function readInputs(){
+  return {
+    main: document.getElementById("txtMain").value || "全友",
+    sizeMain: Number(document.getElementById("sizeMain").value) || 148,
+    en: document.getElementById("txtEn").value || "Quanu",
+    sizeEn: Number(document.getElementById("sizeEn").value) || 52,
+    biz: document.getElementById("txtBiz").value || "全屋定制/家具/沙发/橱柜/卫浴",
+    sizeBiz: Number(document.getElementById("sizeBiz").value) || 26,
+    tel: document.getElementById("txtTel").value || "电话: 1876688XXXX",
+    sizeTel: Number(document.getElementById("sizeTel").value) || 26,
+    spec: document.getElementById("txtSpec").value || "10m×25mm",
+    sizeSpec: Number(document.getElementById("sizeSpec").value) || 28,
+    txtColor: document.getElementById("txtColor").value || "#f0ece0",
+    logoScale: Number(document.getElementById("logoScale").value) || 0.45,
+    logoYOffset: Number(document.getElementById("logoYOffset").value) || -120,
+    shellColorMode: document.getElementById("shellColorMode").value
+  };
+}
+
+// Logo上传监听
+document.getElementById("logoFile").onchange = function(e){
+  const f = e.target.files[0];
+  if(!f) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    const img = new Image();
+    img.onload = function(){
+      logoImg = img;
+      const box = document.getElementById("logoPreviewBox");
+      box.innerHTML = "";
+      const mini = new Image();
+      mini.src = ev.target.result;
+      box.appendChild(mini);
+      draw();
+    }
+    img.src = ev.target.result;
+  }
+  reader.readAsDataURL(f);
+}
+
+function draw(){
+  const t = readInputs();
+  const W = canvas.width;
+  const H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  const cx = W / 2;
+  const cy = H * 0.42;
+
+  drawGridMat(W, H);
+  drawTapeBlade(W, H);
+  const r = 360;
+  drawTapeShell(cx, cy, r, t.shellColorMode);
+  drawRightClip(cx, cy, r);
+  drawPanelText(cx, cy, r, t);
+
+  // 绘制上传Logo（顶层）
+  if(logoImg){
+    ctx.save();
+    const lw = logoImg.width * t.logoScale;
+    const lh = logoImg.height * t.logoScale;
+    ctx.drawImage(logoImg, cx - lw/2, cy + t.logoYOffset, lw, lh);
+    ctx.restore();
+  }
+}
+
+// 背景网格垫
+function drawGridMat(W, H){
+  ctx.save();
+  ctx.globalAlpha = 0.18;
+  for(let x = 0; x < W; x += 32){
+    ctx.beginPath();
+    ctx.moveTo(x, 0); ctx.lineTo(x, H);
+    ctx.strokeStyle = "#91a4b2"; ctx.lineWidth = 1; ctx.stroke();
+  }
+  for(let y = 0; y < H; y += 32){
+    ctx.beginPath();
+    ctx.moveTo(0, y); ctx.lineTo(W, y);
+    ctx.strokeStyle = "#91a4b2"; ctx.lineWidth = 1; ctx.stroke();
+  }
+  ctx.restore();
+}
+
+// 绿色尺带
+function drawTapeBlade(W, H){
+  ctx.save();
+  ctx.translate(W * 0.52, H * 0.66);
+  ctx.rotate(-0.08);
+  ctx.fillStyle = "#00c853";
+  ctx.beginPath(); ctx.roundRect(-180, 0, 360, 22, 4); ctx.fill();
+  ctx.strokeStyle = "#000"; ctx.lineWidth = 2;
+  for(let i = 0; i < 360; i += 18){
+    ctx.beginPath();
+    ctx.moveTo(-180 + i, 0);
+    ctx.lineTo(-180 + i, i % 90 === 0 ? 14 : 8);
+    ctx.stroke();
+  }
+  ctx.font = "bold 12px Arial"; ctx.fillStyle = "#000";
+  ctx.fillText("10", -175, 16);
+  ctx.fillText("20", -85, 16);
+  ctx.fillText("30", 5, 16);
+  ctx.fillText("40", 95, 16);
+  ctx.fillText("50", 185, 16);
+  ctx.restore();
+}
+
+// 卷尺外壳主体（多配色）
+function drawTapeShell(cx, cy, r, mode){
+  ctx.save();
+  ctx.beginPath(); ctx.arc(cx + 16, cy + 16, r, 0, Math.PI * 2);
+  ctx.fillStyle = "rgba(0,0,0,.35)"; ctx.fill();
+
+  let shellGrad = ctx.createRadialGradient(cx - 20, cy - 20, 10, cx, cy, r);
+  switch(mode){
+    case "black":
+      shellGrad.addColorStop(0,"#333333");
+      shellGrad.addColorStop(0.45,"#222222");
+      shellGrad.addColorStop(1,"#111111");
+      break;
+    case "blue":
+      shellGrad.addColorStop(0,"#2b3848");
+      shellGrad.addColorStop(0.45,"#1c2735");
+      shellGrad.addColorStop(1,"#101720");
+      break;
+    case "orange":
+      shellGrad.addColorStop(0,"#703822");
+      shellGrad.addColorStop(0.45,"#542918");
+      shellGrad.addColorStop(1,"#381b10");
+      break;
+    default:
+      shellGrad.addColorStop(0, "#3a3e44");
+      shellGrad.addColorStop(0.45, "#2b2f33");
+      shellGrad.addColorStop(1, "#1e2124");
+  }
+
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.fillStyle = shellGrad; ctx.fill();
+  ctx.beginPath(); ctx.arc(cx, cy, r - 10, 0, Math.PI * 2);
+  ctx.strokeStyle = "rgba(255,255,255,.12)"; ctx.lineWidth = 4; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, r - 22, 0, Math.PI * 2);
+  ctx.strokeStyle = "#4c5056"; ctx.lineWidth = 3; ctx.stroke();
+  const highlight = ctx.createRadialGradient(cx, cy - r * 0.4, 10, cx, cy, r);
+  highlight.addColorStop(0, "rgba(255,255,255,.08)");
+  highlight.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = highlight; ctx.fill();
+  ctx.restore();
+}
+
+// 右侧卡扣
+function drawRightClip(cx, cy, r){
+  ctx.save();
+  const clipX = cx + r - 24;
+  const clipY = cy - 100;
+  ctx.beginPath(); ctx.roundRect(clipX + 8, clipY + 8, 120, 180, 24);
+  ctx.fillStyle = "rgba(0,0,0,.35)"; ctx.fill();
+  const clipGrad = ctx.createLinearGradient(clipX, clipY, clipX + 120, clipY + 180);
+  clipGrad.addColorStop(0, "#b8bcbf");
+  clipGrad.addColorStop(0.5, "#dfe3e6");
+  clipGrad.addColorStop(1, "#9ca0a3");
+  ctx.beginPath(); ctx.roundRect(clipX, clipY, 120, 180, 24);
+  ctx.fillStyle = clipGrad; ctx.fill();
+  ctx.beginPath(); ctx.roundRect(clipX + 12, clipY + 12, 96, 156, 18);
+  ctx.strokeStyle = "rgba(0,0,0,.25)"; ctx.lineWidth = 2; ctx.stroke();
+  ctx.restore();
+}
+
+// 绘制面板文字（独立字号+自定义颜色）
+function drawPanelText(cx, cy, r, t){
+  ctx.save();
+  ctx.fillStyle = t.txtColor;
+  ctx.textAlign = "center";
+  ctx.font = `bold ${t.sizeMain}px "Microsoft YaHei", "PingFang SC", sans-serif`;
+  ctx.fillText(t.main, cx, cy - 70);
+  ctx.font = `${t.sizeEn}px "Microsoft YaHei", sans-serif`;
+  ctx.fillText(t.en, cx, cy + 18);
+  ctx.font = `${t.sizeBiz}px "Microsoft YaHei", sans-serif`;
+  ctx.fillText(t.biz, cx, cy + 72);
+  ctx.font = `${t.sizeTel}px "Microsoft YaHei", sans-serif`;
+  ctx.fillText(t.tel, cx, cy + 112);
+  const specW = 200;
+  const specH = 64;
+  const specX = cx - specW / 2;
+  const specY = cy + 145;
+  ctx.beginPath(); ctx.roundRect(specX, specY, specW, specH, 14);
+  ctx.strokeStyle = t.txtColor; ctx.lineWidth = 3; ctx.stroke();
+  ctx.font = `${t.sizeSpec}px "Microsoft YaHei", sans-serif`;
+  ctx.fillText(t.spec, cx, specY + 40);
+  ctx.restore();
+}
+
+// 单张导出
+function downloadPNG(){
+  const link = document.createElement("a");
+  link.download = "卷尺效果图.png";
+  link.href = canvas.toDataURL("image/png");
+  link.click();
+}
+
+// 批量生成
+async function batchExport(){
+  const lines = document.getElementById("batchText").value.trim().split("\n");
+  const base = readInputs();
+  for(let line of lines){
+    if(!line.trim()) continue;
+    const arr = line.split(",");
+    if(arr.length<5)continue;
+    // 临时替换文字渲染
+    document.getElementById("txtMain").value = arr[0].trim();
+    document.getElementById("txtEn").value = arr[1].trim();
+    document.getElementById("txtBiz").value = arr[2].trim();
+    document.getElementById("txtTel").value = arr[3].trim();
+    document.getElementById("txtSpec").value = arr[4].trim();
+    draw();
+    await new Promise(s=>setTimeout(s,200));
+    const a = document.createElement("a");
+    a.download = `卷尺_${arr[0].trim()}.png`;
+    a.href = canvas.toDataURL("image/png");
+    a.click();
+  }
+  // 恢复回表单原有内容
+  document.getElementById("txtMain").value = base.main;
+  document.getElementById("txtEn").value = base.en;
+  document.getElementById("txtBiz").value = base.biz;
+  document.getElementById("txtTel").value = base.tel;
+  document.getElementById("txtSpec").value = base.spec;
+  draw();
+}
+
+draw();
+// 输入框实时刷新
+document.querySelectorAll("input, select, textarea").forEach(input=>{
+  input.addEventListener("input",draw);
+})
+</script>
+</body>
+</html>
